@@ -1,11 +1,15 @@
 package com.demo.minet.entity;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "asset")
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class Asset {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
