@@ -1,13 +1,12 @@
 package com.demo.minet.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Entity
 @Table(name = "wallet")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class Wallet {
@@ -19,7 +18,7 @@ public class Wallet {
     private int userId;
     @Column(name = "asset_id")
     private int assetId;
-    @Column(name = "total_balance")
-    private int totalBalance;
+    @Column(name = "total_quantity")
+    private float totalQuantity;
 
 }

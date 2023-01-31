@@ -3,6 +3,7 @@ package com.demo.minet.rest;
 import com.demo.minet.entity.Transaction;
 import com.demo.minet.service.TransactionService;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -39,12 +40,17 @@ class TransactionRestControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
 
+    static Transaction transaction;
+
+    @BeforeAll
+    public static void startup() {
+        transaction = new Transaction(1, 1, 1, 0.1f, "SOLD", 100);
+    }
+
     @Test
     void getAllTransactions() throws Exception {
         List<Transaction> transactions = new ArrayList<>(
-                List.of(
-                        new Transaction(1, 1, 1, 1000, "Sell", "BTC Wallet", "Self Account")
-                )
+                List.of(transaction)
         );
 
         when(transactionService.getAllTransactions()).thenReturn(transactions);
@@ -56,24 +62,20 @@ class TransactionRestControllerTest {
 
     @Test
     void getTransactionById() throws Exception {
-        Transaction transaction =
-                new Transaction(1, 1, 1, 1000, "Sell", "BTC Wallet", "Self Account");
         when(transactionService.getTransactionById(1)).thenReturn(Optional.of(transaction));
         mvc.perform(MockMvcRequestBuilders.get("/transactions/{id}", 1))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(transaction.getId()))
                 .andExpect(jsonPath("$.userId").value(transaction.getUserId()))
-                .andExpect(jsonPath("$.totalAmount").value(transaction.getTotalAmount()))
+                .andExpect(jsonPath("$.assetId").value(transaction.getAssetId()))
+                .andExpect(jsonPath("$.totalQuantity").value(transaction.getTotalQuantity()))
                 .andExpect(jsonPath("$.transactionType").value(transaction.getTransactionType()))
-                .andExpect(jsonPath("$.payingThrough").value(transaction.getPayingThrough()))
-                .andExpect(jsonPath("$.depositTo").value(transaction.getDepositTo()))
+                .andExpect(jsonPath("$.transactionFee").value(transaction.getTransactionFee()))
                 .andDo(print());
     }
 
     @Test
     void saveTransaction() throws Exception {
-        Transaction transaction =
-                new Transaction(1, 1, 1, 1000, "Sell", "BTC Wallet", "Self Account");
         when(transactionService.saveTransaction(transaction)).thenReturn(transaction);
         mvc.perform(MockMvcRequestBuilders.post("/transactions")
                 .contentType(MediaType.APPLICATION_JSON)

@@ -4,19 +4,21 @@ import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
-@Table(name = "watchlist")
+@Table(name = "graph")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Watchlist {
+public class Graph {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private int id;
-    @Column(name = "user_id")
-    private int userId;
-    @Column(name = "asset_id")
-    private int assetId;
-
+    @Column(name = "x")
+    private int x;
+    @Column(name = "y")
+    private int y;
+    @ManyToOne
+    @JoinColumn(name = "asset_detail_id")
+    private AssetDetail assetDetail;
 }

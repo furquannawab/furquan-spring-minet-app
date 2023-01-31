@@ -3,9 +3,7 @@ package com.demo.minet.service;
 import com.demo.minet.dao.AccountRepository;
 import com.demo.minet.dao.TransactionRepository;
 import com.demo.minet.dao.WalletRepository;
-import com.demo.minet.entity.AccountDetail;
-import com.demo.minet.entity.Transaction;
-import com.demo.minet.entity.Wallet;
+import com.demo.minet.entity.*;
 import com.demo.minet.exception.TransactionException;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.TypedQuery;
@@ -38,6 +36,8 @@ class TransactionServiceImplTest {
     TypedQuery<Wallet> walletQuery;
     @Mock
     TypedQuery<AccountDetail> accountQuery;
+    @Mock
+    TypedQuery<Asset> assetQuery;
 
     @InjectMocks
     private TransactionServiceImpl transactionService;
@@ -46,7 +46,7 @@ class TransactionServiceImplTest {
     @Test
     void getAllTransactions() {
         Transaction transaction =
-                new Transaction(1, 1, 1, 1000, "Sell", "BTC", "Self");
+                new Transaction(1, 1, 1, 0.1f, "SOLD", 100);
         List<Transaction> transactions = List.of(transaction);
         when(transactionRepository.findAll()).thenReturn(transactions);
         assertThat(transactionService.getAllTransactions()).isEqualTo(transactions);
@@ -55,7 +55,7 @@ class TransactionServiceImplTest {
     @Test
     void getTransactionById() {
         Optional<Transaction> transaction =
-                Optional.of(new Transaction(1, 1, 1, 1000, "Sell", "BTC", "Self"));
+                Optional.of(new Transaction(1, 1, 1, 0.1f, "SOLD", 100));
         when(transactionRepository.findById(1)).thenReturn(transaction);
         assertThat(transactionService.getTransactionById(1)).isEqualTo(transaction);
     }
@@ -64,23 +64,27 @@ class TransactionServiceImplTest {
     class saveTransactionTests {
         Wallet wallet;
         AccountDetail accountDetail;
-        TypedQuery<?> typedQuery;
+        Asset asset;
+        AssetDetail assetDetail;
 
         @BeforeEach
         public void startup() {
-            wallet = new Wallet(1, 1, 1, 1000);
+            wallet = new Wallet(1, 1, 1, 0.1f);
             accountDetail = new AccountDetail(1, 1, 123, "ABC", "Bank", "IFSC", 1000);
-            typedQuery = mock(TypedQuery.class);
+            assetDetail = new AssetDetail(1, 1000f, "Change", "Cap", "Supply", null, null);
+            asset = new Asset(1, "Bitcoin", "BTC", "Desc", "Resc", assetDetail);
             when(entityManager.createQuery(anyString(), eq(Wallet.class))).thenReturn(walletQuery);
             when(entityManager.createQuery(anyString(), eq(AccountDetail.class))).thenReturn(accountQuery);
+            when(entityManager.createQuery(anyString(), eq(Asset.class))).thenReturn(assetQuery);
             when(walletQuery.getSingleResult()).thenReturn(wallet);
             when(accountQuery.getSingleResult()).thenReturn(accountDetail);
+            when(assetQuery.getSingleResult()).thenReturn(asset);
         }
 
         @Test
         void saveTransactionForPurchase() {
             Transaction transaction =
-                    new Transaction(1, 1, 1, 500, "Purchase", "Self Account", "BTC Wallet");
+                    new Transaction( 1, 1, 0.1f, "PURCHASED", 100);
             when(transactionRepository.save(transaction)).thenReturn(transaction);
             assertThat(transactionService.saveTransaction(transaction)).isEqualTo(transaction);
         }
@@ -88,7 +92,7 @@ class TransactionServiceImplTest {
         @Test
         void saveTransactionForSell() {
             Transaction transaction =
-                    new Transaction(1, 1, 1, 500, "Sell", "Self Account", "BTC Wallet");
+                    new Transaction(1, 1, 0.1f, "SOLD", 100);
             when(transactionRepository.save(transaction)).thenReturn(transaction);
             assertThat(transactionService.saveTransaction(transaction)).isEqualTo(transaction);
         }
@@ -96,14 +100,14 @@ class TransactionServiceImplTest {
         @Test
         void saveTransactionForPurchaseException() {
             Transaction transaction =
-                    new Transaction(1, 1, 1, 1500, "Purchase", "Self Account", "BTC Wallet");
+                    new Transaction(1, 1, 10f, "PURCHASED", 100);
             assertThatExceptionOfType(TransactionException.class).isThrownBy(() -> transactionService.saveTransaction(transaction));
         }
 
         @Test
         void saveTransactionForSellException() {
             Transaction transaction =
-                    new Transaction(1, 1, 1, 1500, "Sell", "Self Account", "BTC Wallet");
+                    new Transaction(1, 1, 10f, "SOLD", 100);
              assertThatExceptionOfType(TransactionException.class).isThrownBy(() -> transactionService.saveTransaction(transaction));
         }
     }
