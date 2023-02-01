@@ -1,12 +1,15 @@
 package com.demo.minet.entity;
 
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.*;
 
 
 @Entity
 @Table(name = "user")
-@Data
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -16,7 +19,5 @@ public class User {
     private String fullName;
     @Column(name = "email")
     private String email;
-    @Column(name = "password")
-    private String password;
 
 }

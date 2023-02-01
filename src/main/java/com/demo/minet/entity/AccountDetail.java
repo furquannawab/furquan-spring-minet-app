@@ -1,11 +1,14 @@
 package com.demo.minet.entity;
 
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.*;
 
 @Entity
 @Table(name = "account_detail")
-@Data
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class AccountDetail {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -22,6 +25,5 @@ public class AccountDetail {
     @Column(name = "ifsc_code")
     private String ifscCode;
     @Column(name = "account_balance")
-    private int accountBalance;
-
+    private float accountBalance;
 }

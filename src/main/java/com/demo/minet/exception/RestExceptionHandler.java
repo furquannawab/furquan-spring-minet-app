@@ -1,4 +1,4 @@
-package com.demo.minet.rest;
+package com.demo.minet.exception;
 
 import com.demo.minet.exception.ExceptionErrorResponse;
 import com.demo.minet.exception.TransactionException;

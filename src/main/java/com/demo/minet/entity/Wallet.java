@@ -1,11 +1,14 @@
 package com.demo.minet.entity;
 
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.*;
 
 @Entity
 @Table(name = "wallet")
-@Data
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class Wallet {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -15,7 +18,7 @@ public class Wallet {
     private int userId;
     @Column(name = "asset_id")
     private int assetId;
-    @Column(name = "total_balance")
-    private int totalBalance;
+    @Column(name = "total_quantity")
+    private float totalQuantity;
 
 }

@@ -4,6 +4,7 @@ import com.demo.minet.dao.AccountRepository;
 import com.demo.minet.dao.TransactionRepository;
 import com.demo.minet.dao.WalletRepository;
 import com.demo.minet.entity.AccountDetail;
+import com.demo.minet.entity.Asset;
 import com.demo.minet.entity.Transaction;
 import com.demo.minet.entity.Wallet;
 import com.demo.minet.exception.TransactionException;
@@ -41,22 +42,31 @@ public class TransactionServiceImpl implements TransactionService{
         query2.setParameter("userId", transaction.getUserId());
         AccountDetail accountDetail = query2.getSingleResult();
 
-        int walletBalance = wallet.getTotalBalance();
-        int accountBalance = accountDetail.getAccountBalance();
+        TypedQuery<Asset> query3 = entityManager.createQuery(
+                "from Asset where id=:id", Asset.class
+        );
+        query3.setParameter("id", transaction.getAssetId());
+        Asset asset = query3.getSingleResult();
 
-        if (transaction.getTransactionType().equals("Purchase")) {
-            if (accountBalance < transaction.getTotalAmount())
+        float walletQuantity = wallet.getTotalQuantity();
+        float accountBalance = accountDetail.getAccountBalance();
+        float totalQuantity = transaction.getTotalQuantity();
+        float transactionAmount = (totalQuantity * asset.getAssetDetail().getPrice());
+        float transactionFee = transaction.getTransactionFee();
+
+        if (transaction.getTransactionType().equals("PURCHASED")) {
+            if (accountBalance < transactionAmount + transactionFee)
                 throw new TransactionException("Account Balance less than Transaction amount");
-            accountBalance -= transaction.getTotalAmount();
-            walletBalance += transaction.getTotalAmount();
+            accountBalance -= transactionAmount + transactionFee;
+            walletQuantity += totalQuantity;
         } else {
-            if (walletBalance < transaction.getTotalAmount())
+            if (walletQuantity < totalQuantity)
                 throw new TransactionException("Wallet Balance less than Transaction amount");
-            accountBalance += transaction.getTotalAmount();
-            walletBalance -= transaction.getTotalAmount();
+            accountBalance += transactionAmount - transactionFee;
+            walletQuantity -= totalQuantity;
         }
         accountDetail.setAccountBalance(accountBalance);
-        wallet.setTotalBalance(walletBalance);
+        wallet.setTotalQuantity(walletQuantity);
         accountRepository.save(accountDetail);
         walletRepository.save(wallet);
         Transaction transaction1 = transactionRepository.save(transaction);
